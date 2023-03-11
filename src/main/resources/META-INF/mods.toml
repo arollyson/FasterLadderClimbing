@@ -1,29 +1,29 @@
-modLoader="javafml"
-loaderVersion="[35,)"
-issueTrackerURL="https://github.com/arollyson/FasterLadderClimbing/issues"
-license="CC-BY-NC-SA 3.0"
+modLoader = "javafml"
+loaderVersion = "[36,)"
+issueTrackerURL = "https://github.com/arollyson/FasterLadderClimbing/issues"
+license = "CC-BY-NC-SA 3.0"
 
 [[mods]]
-modId="fasterladderclimbing"
-displayName="Faster Ladder Climbing"
-version="${version}"
-authors="JaSpr, forkbomb_"
-description='''
+modId = "fasterladderclimbing"
+displayName = "Faster Ladder Climbing"
+version = "${version}"
+authors = "JaSpr, forkbomb_"
+description = '''
 Climb Ladders Faster
 '''
 
 #forge
 [[dependencies.fasterladderclimbing]]
-    modId="forge"
-    mandatory=true
-    versionRange="[35,)"
-    ordering="NONE"
-    side="CLIENT"
+modId = "forge"
+mandatory = true
+versionRange = "[36,)"
+ordering = "NONE"
+side = "CLIENT"
 
 #minecraft
 [[dependencies.fasterladderclimbing]]
-    modId="minecraft"
-    mandatory=true
-    versionRange="[1.16.4]"
-    ordering="NONE"
-    side="CLIENT"
+modId = "minecraft"
+mandatory = true
+versionRange = "[1.16.5]"
+ordering = "NONE"
+side = "CLIENT"

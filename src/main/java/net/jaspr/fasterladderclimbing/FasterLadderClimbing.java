@@ -15,48 +15,56 @@
  */
 package net.jaspr.fasterladderclimbing;
 
+import org.slf4j.Logger;
+
+import com.mojang.logging.LogUtils;
+
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.config.ModConfig;
-import net.minecraftforge.fml.IExtensionPoint.DisplayTest;
-import net.minecraftforge.fml.ModLoadingContext;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.config.ModConfig;
+import net.neoforged.fml.ModContainer;
+
+import net.neoforged.neoforge.client.gui.ConfigurationScreen;
+import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
 @Mod(FasterLadderClimbing.MOD_ID)
 public class FasterLadderClimbing {
 
 	public static final String MOD_ID = "fasterladderclimbing";
-	public static final Logger LOGGER = LogManager.getLogger(FasterLadderClimbing.MOD_ID);
+	public static final Logger LOGGER = LogUtils.getLogger();
 
-	public FasterLadderClimbing() {
-		//Make sure the mod being absent on the other network side does not cause the client to display the server as incompatible
-		ModLoadingContext.get().registerExtensionPoint(DisplayTest.class, () -> new DisplayTest(() -> DisplayTest.IGNORESERVERONLY, (a, b) -> true));
+	public FasterLadderClimbing(IEventBus modEventBus, ModContainer modContainer) {
+		// Register ourselves for server and other game events we are interested in.
+		NeoForge.EVENT_BUS.register(this);
 
-		// Load Config
-		ModLoadingContext.get().registerConfig(ModConfig.Type.CLIENT, FasterLadderClimbingConfig.CONFIG_SPEC);
+		// Register our mod's ModConfigSpec so that FML can create and load the config
+		// file for us
+		modContainer.registerConfig(ModConfig.Type.CLIENT, FasterLadderClimbingConfig.CONFIG_SPEC);
 
-		// Register ourselves for server and other game events we are interested in
-		MinecraftForge.EVENT_BUS.register(this);
+		// Register a config screen
+		modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
 	}
 
 	@SubscribeEvent
-	public void onPlayerTick(final TickEvent.PlayerTickEvent event) {
-		if(event.phase == TickEvent.Phase.START) {
-			final Player player = event.player;
+	public void onPlayerTick(final PlayerTickEvent.Pre event) {
+		if (event.getEntity().level().isClientSide) {
+			final Player player = event.getEntity();
 
 			if (player.onClimbable() && !player.isCrouching()) {
 				EntityClimber climber = new EntityClimber(player);
-	
-				if (FasterLadderClimbingConfig.allowQuickDescension && climber.isFacingDownward() && !climber.isMovingForward() && !climber.isMovingBackward()) {
+
+				if (FasterLadderClimbingConfig.getAllowQuickDescension() && climber.isFacingDownward()
+						&& !climber.isMovingForward() && !climber.isMovingBackward()) {
 					climber.moveDownFarther();
-				} else if (FasterLadderClimbingConfig.allowQuickAscension && climber.isFacingUpward() && climber.isMovingForward()) {
+				} else if (FasterLadderClimbingConfig.getAllowQuickAscension() && climber.isFacingUpward()
+						&& climber.isMovingForward()) {
 					climber.moveUpFarther();
 				}
 			}
@@ -87,7 +95,8 @@ public class FasterLadderClimbing {
 		}
 
 		private float getElevationChangeUpdate() {
-			return (float)Math.abs(player.getXRot() / 90.0) * (((float)FasterLadderClimbingConfig.speedModifier) / 10);
+			return (float) Math.abs(player.getXRot() / 90.0)
+					* (((float) FasterLadderClimbingConfig.getSpeedModifier()) / 10);
 		}
 
 		public void moveUpFarther() {

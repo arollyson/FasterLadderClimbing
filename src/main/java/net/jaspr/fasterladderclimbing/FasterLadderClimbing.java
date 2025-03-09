@@ -23,8 +23,8 @@ import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.phys.Vec3;
 
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.ModContainer;
@@ -34,26 +34,19 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.PlayerTickEvent;
 
-@Mod(FasterLadderClimbing.MOD_ID)
+@Mod(value = FasterLadderClimbing.MOD_ID, dist = Dist.CLIENT)
 public class FasterLadderClimbing {
 
 	public static final String MOD_ID = "fasterladderclimbing";
 	public static final Logger LOGGER = LogUtils.getLogger();
 
 	public FasterLadderClimbing(IEventBus modEventBus, ModContainer modContainer) {
-		// Register ourselves for server and other game events we are interested in.
-		NeoForge.EVENT_BUS.register(this);
-
-		// Register our mod's ModConfigSpec so that FML can create and load the config
-		// file for us
 		modContainer.registerConfig(ModConfig.Type.CLIENT, FasterLadderClimbingConfig.CONFIG_SPEC);
-
-		// Register a config screen
 		modContainer.registerExtensionPoint(IConfigScreenFactory.class, ConfigurationScreen::new);
+		NeoForge.EVENT_BUS.addListener(FasterLadderClimbing::adjustClimbingSpeed);
 	}
 
-	@SubscribeEvent
-	public void onPlayerTick(final PlayerTickEvent.Pre event) {
+	private static void adjustClimbingSpeed(final PlayerTickEvent.Pre event) {
 		if (event.getEntity().level().isClientSide) {
 			final Player player = event.getEntity();
 
@@ -71,7 +64,7 @@ public class FasterLadderClimbing {
 		}
 	}
 
-	private class EntityClimber {
+	private static class EntityClimber {
 		private Player player;
 
 		public EntityClimber(Player player) {

@@ -53,10 +53,10 @@ public class FasterLadderClimbing {
 			if (player.onClimbable() && !player.isCrouching()) {
 				EntityClimber climber = new EntityClimber(player);
 
-				if (FasterLadderClimbingConfig.getAllowQuickDescension() && climber.isFacingDownward()
+				if (FasterLadderClimbingConfig.allowQuickDescension.get() && climber.isFacingDownward()
 						&& !climber.isMovingForward() && !climber.isMovingBackward()) {
 					climber.moveDownFarther();
-				} else if (FasterLadderClimbingConfig.getAllowQuickAscension() && climber.isFacingUpward()
+				} else if (FasterLadderClimbingConfig.allowQuickAscension.get() && climber.isFacingUpward()
 						&& climber.isMovingForward()) {
 					climber.moveUpFarther();
 				}
@@ -89,7 +89,7 @@ public class FasterLadderClimbing {
 
 		private float getElevationChangeUpdate() {
 			return (float) Math.abs(player.getXRot() / 90.0)
-					* (((float) FasterLadderClimbingConfig.getSpeedModifier()) / 10);
+					* (((float) FasterLadderClimbingConfig.speedModifier.get()) / 10);
 		}
 
 		public void moveUpFarther() {
